@@ -1,0 +1,267 @@
+Gramática
+
+    0 $accept: entrada $end
+
+    1 entrada: entrada linea
+    2        | ε
+
+    3 linea: E FIN
+
+    4 E: E MAS T
+    5  | E MENOS T
+    6  | T
+
+    7 T: T POR F
+    8  | T DIV F
+    9  | F
+
+   10 F: APAR E CPAR
+   11  | NUM
+   12  | MENOS FIN
+
+
+Terminales con las reglas donde aparecen
+
+    $end (0) 0
+    error (256)
+    NUM (258) 11
+    MAS (259) 4
+    POR (260) 7
+    FIN (261) 3 12
+    APAR (262) 10
+    CPAR (263) 10
+    DIV (264) 8
+    MENOS (265) 5 12
+
+
+No terminales con las reglas donde aparecen
+
+    $accept (11)
+        on left: 0
+    entrada (12)
+        on left: 1 2
+        on right: 0 1
+    linea (13)
+        on left: 3
+        on right: 1
+    E (14)
+        on left: 4 5 6
+        on right: 3 4 5 10
+    T (15)
+        on left: 7 8 9
+        on right: 4 5 6 7 8
+    F (16)
+        on left: 10 11 12
+        on right: 7 8 9
+
+
+Estado 0
+
+    0 $accept: • entrada $end
+
+    $default  reduce usando la regla 2 (entrada)
+
+    entrada  ir al estado 1
+
+
+Estado 1
+
+    0 $accept: entrada • $end
+    1 entrada: entrada • linea
+
+    $end   desplazar e ir al estado 2
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    linea  ir al estado 6
+    E      ir al estado 7
+    T      ir al estado 8
+    F      ir al estado 9
+
+
+Estado 2
+
+    0 $accept: entrada $end •
+
+    $default  aceptar
+
+
+Estado 3
+
+   11 F: NUM •
+
+    $default  reduce usando la regla 11 (F)
+
+
+Estado 4
+
+   10 F: APAR • E CPAR
+
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    E  ir al estado 10
+    T  ir al estado 8
+    F  ir al estado 9
+
+
+Estado 5
+
+   12 F: MENOS • FIN
+
+    FIN  desplazar e ir al estado 11
+
+
+Estado 6
+
+    1 entrada: entrada linea •
+
+    $default  reduce usando la regla 1 (entrada)
+
+
+Estado 7
+
+    3 linea: E • FIN
+    4 E: E • MAS T
+    5  | E • MENOS T
+
+    MAS    desplazar e ir al estado 12
+    FIN    desplazar e ir al estado 13
+    MENOS  desplazar e ir al estado 14
+
+
+Estado 8
+
+    6 E: T •
+    7 T: T • POR F
+    8  | T • DIV F
+
+    POR  desplazar e ir al estado 15
+    DIV  desplazar e ir al estado 16
+
+    $default  reduce usando la regla 6 (E)
+
+
+Estado 9
+
+    9 T: F •
+
+    $default  reduce usando la regla 9 (T)
+
+
+Estado 10
+
+    4 E: E • MAS T
+    5  | E • MENOS T
+   10 F: APAR E • CPAR
+
+    MAS    desplazar e ir al estado 12
+    CPAR   desplazar e ir al estado 17
+    MENOS  desplazar e ir al estado 14
+
+
+Estado 11
+
+   12 F: MENOS FIN •
+
+    $default  reduce usando la regla 12 (F)
+
+
+Estado 12
+
+    4 E: E MAS • T
+
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    T  ir al estado 18
+    F  ir al estado 9
+
+
+Estado 13
+
+    3 linea: E FIN •
+
+    $default  reduce usando la regla 3 (linea)
+
+
+Estado 14
+
+    5 E: E MENOS • T
+
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    T  ir al estado 19
+    F  ir al estado 9
+
+
+Estado 15
+
+    7 T: T POR • F
+
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    F  ir al estado 20
+
+
+Estado 16
+
+    8 T: T DIV • F
+
+    NUM    desplazar e ir al estado 3
+    APAR   desplazar e ir al estado 4
+    MENOS  desplazar e ir al estado 5
+
+    F  ir al estado 21
+
+
+Estado 17
+
+   10 F: APAR E CPAR •
+
+    $default  reduce usando la regla 10 (F)
+
+
+Estado 18
+
+    4 E: E MAS T •
+    7 T: T • POR F
+    8  | T • DIV F
+
+    POR  desplazar e ir al estado 15
+    DIV  desplazar e ir al estado 16
+
+    $default  reduce usando la regla 4 (E)
+
+
+Estado 19
+
+    5 E: E MENOS T •
+    7 T: T • POR F
+    8  | T • DIV F
+
+    POR  desplazar e ir al estado 15
+    DIV  desplazar e ir al estado 16
+
+    $default  reduce usando la regla 5 (E)
+
+
+Estado 20
+
+    7 T: T POR F •
+
+    $default  reduce usando la regla 7 (T)
+
+
+Estado 21
+
+    8 T: T DIV F •
+
+    $default  reduce usando la regla 8 (T)

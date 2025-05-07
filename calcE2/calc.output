@@ -1,0 +1,375 @@
+Grammar
+
+    0 $accept: entrada $end
+
+    1 entrada: ε
+
+    2 $@1: ε
+
+    3 entrada: entrada $@1 linea
+
+    4 linea: expresion FIN
+    5      | ID ASIG expresion FIN
+    6      | error FIN
+
+    7 expresion: expresion MAS expresion
+    8          | expresion MENOS expresion
+    9          | expresion POR expresion
+   10          | expresion DIV expresion
+   11          | expresion MOD expresion
+   12          | PARI expresion PARD
+   13          | MENOS expresion
+   14          | NUM
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256) 6
+    PARI (258) 12
+    PARD (259) 12
+    FIN (260) 4 5 6
+    ASIG (261) 5
+    NUM <e> (262) 14
+    ID <c> (263) 5
+    MAS (264) 7
+    MENOS (265) 8 13
+    POR (266) 9
+    DIV (267) 10
+    MOD (268) 11
+    UMENOS (269)
+
+
+Nonterminals, with rules where they appear
+
+    $accept (15)
+        on left: 0
+    entrada <e> (16)
+        on left: 1 3
+        on right: 0 3
+    $@1 (17)
+        on left: 2
+        on right: 3
+    linea (18)
+        on left: 4 5 6
+        on right: 3
+    expresion <e> (19)
+        on left: 7 8 9 10 11 12 13 14
+        on right: 4 5 7 8 9 10 11 12 13
+
+
+State 0
+
+    0 $accept: • entrada $end
+
+    $default  reduce using rule 1 (entrada)
+
+    entrada  go to state 1
+
+
+State 1
+
+    0 $accept: entrada • $end
+    3 entrada: entrada • $@1 linea
+
+    $end  shift, and go to state 2
+
+    $default  reduce using rule 2 ($@1)
+
+    $@1  go to state 3
+
+
+State 2
+
+    0 $accept: entrada $end •
+
+    $default  accept
+
+
+State 3
+
+    3 entrada: entrada $@1 • linea
+
+    error  shift, and go to state 4
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    ID     shift, and go to state 7
+    MENOS  shift, and go to state 8
+
+    linea      go to state 9
+    expresion  go to state 10
+
+
+State 4
+
+    6 linea: error • FIN
+
+    FIN  shift, and go to state 11
+
+
+State 5
+
+   12 expresion: PARI • expresion PARD
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 12
+
+
+State 6
+
+   14 expresion: NUM •
+
+    $default  reduce using rule 14 (expresion)
+
+
+State 7
+
+    5 linea: ID • ASIG expresion FIN
+
+    ASIG  shift, and go to state 13
+
+
+State 8
+
+   13 expresion: MENOS • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 14
+
+
+State 9
+
+    3 entrada: entrada $@1 linea •
+
+    $default  reduce using rule 3 (entrada)
+
+
+State 10
+
+    4 linea: expresion • FIN
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+
+    FIN    shift, and go to state 15
+    MAS    shift, and go to state 16
+    MENOS  shift, and go to state 17
+    POR    shift, and go to state 18
+    DIV    shift, and go to state 19
+    MOD    shift, and go to state 20
+
+
+State 11
+
+    6 linea: error FIN •
+
+    $default  reduce using rule 6 (linea)
+
+
+State 12
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+   12          | PARI expresion • PARD
+
+    PARD   shift, and go to state 21
+    MAS    shift, and go to state 16
+    MENOS  shift, and go to state 17
+    POR    shift, and go to state 18
+    DIV    shift, and go to state 19
+    MOD    shift, and go to state 20
+
+
+State 13
+
+    5 linea: ID ASIG • expresion FIN
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 22
+
+
+State 14
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+   13          | MENOS expresion •
+
+    $default  reduce using rule 13 (expresion)
+
+
+State 15
+
+    4 linea: expresion FIN •
+
+    $default  reduce using rule 4 (linea)
+
+
+State 16
+
+    7 expresion: expresion MAS • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 23
+
+
+State 17
+
+    8 expresion: expresion MENOS • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 24
+
+
+State 18
+
+    9 expresion: expresion POR • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 25
+
+
+State 19
+
+   10 expresion: expresion DIV • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 26
+
+
+State 20
+
+   11 expresion: expresion MOD • expresion
+
+    PARI   shift, and go to state 5
+    NUM    shift, and go to state 6
+    MENOS  shift, and go to state 8
+
+    expresion  go to state 27
+
+
+State 21
+
+   12 expresion: PARI expresion PARD •
+
+    $default  reduce using rule 12 (expresion)
+
+
+State 22
+
+    5 linea: ID ASIG expresion • FIN
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+
+    FIN    shift, and go to state 28
+    MAS    shift, and go to state 16
+    MENOS  shift, and go to state 17
+    POR    shift, and go to state 18
+    DIV    shift, and go to state 19
+    MOD    shift, and go to state 20
+
+
+State 23
+
+    7 expresion: expresion • MAS expresion
+    7          | expresion MAS expresion •
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+
+    POR  shift, and go to state 18
+    DIV  shift, and go to state 19
+    MOD  shift, and go to state 20
+
+    $default  reduce using rule 7 (expresion)
+
+
+State 24
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    8          | expresion MENOS expresion •
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+
+    POR  shift, and go to state 18
+    DIV  shift, and go to state 19
+    MOD  shift, and go to state 20
+
+    $default  reduce using rule 8 (expresion)
+
+
+State 25
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+    9          | expresion POR expresion •
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+
+    $default  reduce using rule 9 (expresion)
+
+
+State 26
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   10          | expresion DIV expresion •
+   11          | expresion • MOD expresion
+
+    $default  reduce using rule 10 (expresion)
+
+
+State 27
+
+    7 expresion: expresion • MAS expresion
+    8          | expresion • MENOS expresion
+    9          | expresion • POR expresion
+   10          | expresion • DIV expresion
+   11          | expresion • MOD expresion
+   11          | expresion MOD expresion •
+
+    $default  reduce using rule 11 (expresion)
+
+
+State 28
+
+    5 linea: ID ASIG expresion FIN •
+
+    $default  reduce using rule 5 (linea)
