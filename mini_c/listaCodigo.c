@@ -114,3 +114,12 @@ void guardaResLC(ListaC codigo, char *res) {
 char * recuperaResLC(ListaC codigo) {
   return codigo->res;
 }
+
+
+// imprimr lista MIPS
+
+// crea etiqueta 
+
+// crea registro y liberar 
+
+// se peude hacer todo en el .y

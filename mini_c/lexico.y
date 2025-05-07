@@ -116,7 +116,6 @@ print_item : expression
     }
     ;
 
-
 read_list : ID {if (!(perteneceTablaS($1))) 
                     printf("Variable %s no declarada\n",$1); 
                 else if (esConstante($1))
@@ -219,7 +218,21 @@ void imprimirTablaS() {
         contador++;
         pos = siguienteLS(tablaSimb, pos);
     }
-    
     printf("------------------------\n");
     printf("Total de simbolos: %d\n", contador);
 }
+
+
+
+// ensamblador 
+
+// siempre que hacermos una cancatena liberamos la lista 
+
+
+
+// crea un nuevo regisro 
+
+// liberar el registor para que pueda ser utlizada 
+
+
+//

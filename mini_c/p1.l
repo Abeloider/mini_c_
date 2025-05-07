@@ -5,7 +5,7 @@
     #include <string.h>
     
     
-extern YYSTYPE yylval;
+//extern YYSTYPE yylval; no hace falta pornerlo 
 void error();
 %}
 digito              [0-9]
@@ -50,10 +50,6 @@ print                                       return PRINT;
 [ \n\t\r]+                                  ;
 "//"(.*)[\n]                                ;
 
-.                                           printf("\nERROR, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
-{panico}                                    printf("\n ERROR, simbolo no reconocido %s\n",yytext);  
-
-
+{panico}                                    printf("\nERROR, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
+                                      
 %%
-
-
