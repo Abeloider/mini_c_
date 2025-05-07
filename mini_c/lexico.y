@@ -12,6 +12,11 @@ extern int yylineno;
 Lista tablaSimb;
 int contCadena=0;
 
+// Contadores de errores
+int semantic_errors_count = 0;
+int syntactic_errors_count = 0;
+int lexical_errors_count = 0; 
+
 int perteneceTablaS(char *nombre);
 void añadeEntrada(char *nombre, Tipo tipo) ;
 int esConstante(char *nombre);
@@ -41,10 +46,23 @@ char *c;
 %%
 
 //hay que añadir la inicializacion entonces añadimos tablaSimb=creaLS() justo donde pone; 
-program:  {tablaSimb=creaLS();} ID LPAREN RPAREN LCORCH declarations  statement_list RCORCH 
+// cremos un contador para los erroes del semantico sintactico y lexico imprimimos alfinal
+program:  { 
+            tablaSimb=creaLS(); 
+            semantic_errors_count = 0; // Inicializar contadores
+            syntactic_errors_count = 0;
+            lexical_errors_count = 0;   // Inicializar
+
+        } 
+        ID LPAREN RPAREN LCORCH declarations  statement_list RCORCH 
 {
         imprimirTablaS();
-        free($2);
+        free($2); // liberam el ID del nombre del programa 
+
+        // Imprimir resumen de errores
+        printf("Errores lexicos: %d\n", lexical_errors_count);
+        printf("Errores sintacticos: %d\n", syntactic_errors_count);
+        printf("Errores semanticos: %d\n", semantic_errors_count);
 }
     ;
 
@@ -60,29 +78,39 @@ tipo :     INT                      {}
 
 
 var_list :   ID  { if (!(perteneceTablaS($1))) añadeEntrada($1,VARIABLE);
-                        else printf("Variable %s ya declarada\n",$1);
-                         free($1);
-                         }
+                        else {
+                        printf("Error en linea %d: %s ya declarada\n", yylineno, $1);
+                        semantic_errors_count++;
+                        }
+                        free($1);
+                }
     | var_list COMMA ID {if (!(perteneceTablaS($3))) añadeEntrada($3,VARIABLE);
-                        else printf("Variable %s ya declarada\n",$3);
+                        else {
+                        printf("Error en linea %d: %s ya declarada\n", yylineno, $3);
+                        semantic_errors_count++;
+                        }
                         free($3);
-                         }
+                        }
     ;
                        
     
 const_list : ID ASSIGNOP expression {
                 if (!(perteneceTablaS($1))) 
                     añadeEntrada($1, CONSTANTE);
-                else 
-                    printf("Constante %s ya declarada\n", $1);
+                else {
+                    printf("Error en linea %d: %s ya declarada\n", yylineno, $1);
+                    semantic_errors_count++;
+                }  
                     free($1);
             }
     | const_list COMMA ID ASSIGNOP expression {
                 if (!(perteneceTablaS($3))) 
                     añadeEntrada($3, CONSTANTE);
-                else 
-                    printf("Constante %s ya declarada\n", $3);
-                    free($3);
+                else {
+                    printf("Error en linea %d: %s ya declarada\n", yylineno, $3);
+                    semantic_errors_count++;
+                }
+                free($3);
             }
     ;
 
@@ -91,12 +119,16 @@ statement_list : statement_list statement
     ;
 
 statement : ID ASSIGNOP expression SEMICOLON{  
-    if (!(perteneceTablaS($1))) 
-        printf("Variable %s no declarada \n",$1); 
-    else if ((esConstante($1))) 
-        printf("Asignacion a constante\n"); 
+    if (!(perteneceTablaS($1))) {
+        printf("Error en linea %d: %s no declarada\n", yylineno, $1);
+        semantic_errors_count++;
+    }
+    else if ((esConstante($1))) {
+            printf("Error en linea %d: %s es constante\n", yylineno, $1);
+            semantic_errors_count++;      
+        }
         free($1);
-        } 
+    }
 
     |   LCORCH statement_list RCORCH
     |   IF LPAREN expression RPAREN statement ELSE statement
@@ -116,18 +148,26 @@ print_item : expression
     }
     ;
 
-read_list : ID {if (!(perteneceTablaS($1))) 
-                    printf("Variable %s no declarada\n",$1); 
-                else if (esConstante($1))
-                    printf("Asignacion a constante\n");
+read_list : ID {if (!(perteneceTablaS($1))) {
+                    printf("Error en linea %d: %s no declarada\n", yylineno, $1); 
+                    semantic_errors_count++;
+                    }  
+                else if (esConstante($1)) {
+                    printf("Error en linea %d: %s es constante\n", yylineno, $1);
+                    semantic_errors_count++;                    
+                    }
                     free($1);
-                     }
-    | read_list COMMA ID {if (!(perteneceTablaS($3))) 
-                            printf("Variable %s no declarada\n",$3); 
-                        else if ((esConstante($3))) 
-                            printf("Asignacion a constante\n");
+                }
+    | read_list COMMA ID {if (!(perteneceTablaS($3))) {
+                            printf("Error en linea %d: %s no declarada\n", yylineno, $3);
+                            semantic_errors_count++;        
+                        }
+                        else if ((esConstante($3))) {
+                            printf("Error en linea %d: %s es constante\n", yylineno, $3);
+                            semantic_errors_count++;
+                            }
                             free($3);
-                             }
+                         }
     ;
 
 
@@ -138,13 +178,13 @@ expression : expression PLUSOP expression
     |   LPAREN expression INTERR expression DOSPUNT expression RPAREN
     |   MINUSOP expression %prec UMINUS
     |   LPAREN expression RPAREN
-    |   ID  {if (!(perteneceTablaS($1))) 
-                    printf("Variable %s no declarada\n",$1); 
-                    free($1);
-                    }
-    |   NUM{
-        free($1);
-    }
+    |   ID  {if (!(perteneceTablaS($1))) {
+                printf("Error en linea %d: %s no declarada\n", yylineno, $1);
+                semantic_errors_count++;
+            }  
+                free($1);
+            }
+    |   NUM {free($1);}
     ;
 
 %%
@@ -227,7 +267,6 @@ void imprimirTablaS() {
 // ensamblador 
 
 // siempre que hacermos una cancatena liberamos la lista 
-
 
 
 // crea un nuevo regisro 

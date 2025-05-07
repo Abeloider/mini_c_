@@ -523,7 +523,7 @@ char *yytext;
     #include <string.h>
     
     
-//extern YYSTYPE yylval; 
+//extern YYSTYPE yylval; no hace falta pornerlo 
 void error();
 #line 529 "lex.yy.c"
 
@@ -977,7 +977,7 @@ printf("\nERROR, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 56 "p1.l"
+#line 55 "p1.l"
 ECHO;
 	YY_BREAK
 #line 984 "lex.yy.c"
@@ -1998,7 +1998,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "p1.l"
-
+#line 55 "p1.l"
 
 
