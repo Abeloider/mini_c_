@@ -3,8 +3,11 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    
-    
+
+extern int lexical_errors_count; 
+int comprobar_ancho();
+int comprobar_rango();
+
 
 void error();
 %}
@@ -28,8 +31,8 @@ if                                          return IF;
 else                                        return ELSE; 
 while                                       return WHILE;      
 print                                       return PRINT; 
-({letra}|_|$)({letra}|{digito}|_|$)*       { yylval.c = strdup(yytext); return ID;     }
-{entero}                                    { yylval.c = strdup(yytext); return NUM;    }
+({letra}|_|$)({letra}|{digito}|_|$)*        {if (comprobar_ancho()) {yylval.c=strdup(yytext);} else {printf("Error lexico en la linea %d: El ID: %s tiene mas de 32 caracteres\n", yylineno, yytext); lexical_errors_count++;}  return ID;}
+{entero}                                    {if (comprobar_rango()) {yylval.c=strdup(yytext); } else {printf("Error lexico en la linea %d: Numero: %s fuera del rango admitido\n", yylineno, yytext); lexical_errors_count++;} return NUM;}
 "("                                         return LPAREN;		
 ")"                                         return RPAREN;
 ";"                                         return SEMICOLON;
@@ -50,6 +53,19 @@ print                                       return PRINT;
 [ \n\t\r]+                                  ;
 "//"(.*)[\n]                                ;
 
-{panico}+                                    printf("\nError lexico, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
+{panico}+                                    { printf("\nError lexico, simbolo no reconocido %s en la linea %d\n", yytext, yylineno); lexical_errors_count++; }
 
 %%
+
+
+
+int comprobar_ancho() {
+    if (yyleng>32)
+        return 0;
+    return 1;
+}
+int comprobar_rango() {
+    if (atoll(yytext) > 4294967296)
+        return 0;
+    return 1;
+}

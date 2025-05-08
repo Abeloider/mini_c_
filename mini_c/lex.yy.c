@@ -539,13 +539,16 @@ char *yytext;
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    
-    
+
+extern int lexical_errors_count; 
+int comprobar_ancho();
+int comprobar_rango();
+
 
 void error();
-#line 547 "lex.yy.c"
+#line 550 "lex.yy.c"
 
-#line 549 "lex.yy.c"
+#line 552 "lex.yy.c"
 
 #define INITIAL 0
 #define COMENT 1
@@ -763,11 +766,11 @@ YY_DECL
 		}
 
 	{
-#line 19 "p1.l"
+#line 22 "p1.l"
 
 
 
-#line 771 "lex.yy.c"
+#line 774 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -836,169 +839,169 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 22 "p1.l"
+#line 25 "p1.l"
 { yylval.c = strdup(yytext); return STRING; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 23 "p1.l"
+#line 26 "p1.l"
 return READ;
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 24 "p1.l"
+#line 27 "p1.l"
 return VAR;
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 25 "p1.l"
+#line 28 "p1.l"
 return CONST;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 26 "p1.l"
+#line 29 "p1.l"
 return INT;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 27 "p1.l"
+#line 30 "p1.l"
 return IF; 
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 28 "p1.l"
+#line 31 "p1.l"
 return ELSE; 
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 29 "p1.l"
+#line 32 "p1.l"
 return WHILE;      
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 30 "p1.l"
+#line 33 "p1.l"
 return PRINT; 
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 31 "p1.l"
-{ yylval.c = strdup(yytext); return ID;     }
+#line 34 "p1.l"
+{if (comprobar_ancho()) {yylval.c=strdup(yytext);} else {printf("Error lexico en la linea %d: El ID: %s tiene mas de 32 caracteres\n", yylineno, yytext); lexical_errors_count++;}  return ID;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 32 "p1.l"
-{ yylval.c = strdup(yytext); return NUM;    }
+#line 35 "p1.l"
+{if (comprobar_rango()) {yylval.c=strdup(yytext); } else {printf("Error lexico en la linea %d: Numero: %s fuera del rango admitido\n", yylineno, yytext); lexical_errors_count++;} return NUM;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 33 "p1.l"
+#line 36 "p1.l"
 return LPAREN;		
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 34 "p1.l"
+#line 37 "p1.l"
 return RPAREN;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 35 "p1.l"
+#line 38 "p1.l"
 return SEMICOLON;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 36 "p1.l"
+#line 39 "p1.l"
 return COMMA;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 37 "p1.l"
+#line 40 "p1.l"
 return ASSIGNOP;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 38 "p1.l"
+#line 41 "p1.l"
 return PLUSOP;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 39 "p1.l"
+#line 42 "p1.l"
 return MINUSOP;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 40 "p1.l"
+#line 43 "p1.l"
 return DIV;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 41 "p1.l"
+#line 44 "p1.l"
 return POR; 
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 42 "p1.l"
+#line 45 "p1.l"
 return LCORCH;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 43 "p1.l"
+#line 46 "p1.l"
 return RCORCH;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 44 "p1.l"
+#line 47 "p1.l"
 return INTERR;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 45 "p1.l"
+#line 48 "p1.l"
 return DOSPUNT;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 46 "p1.l"
+#line 49 "p1.l"
 BEGIN COMENT;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 47 "p1.l"
+#line 50 "p1.l"
 BEGIN 0;
 	YY_BREAK
 case 27:
 /* rule 27 can match eol */
 YY_RULE_SETUP
-#line 48 "p1.l"
+#line 51 "p1.l"
 ;
 	YY_BREAK
 case 28:
 /* rule 28 can match eol */
 YY_RULE_SETUP
-#line 49 "p1.l"
+#line 52 "p1.l"
 ;
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 50 "p1.l"
+#line 53 "p1.l"
 ;
 	YY_BREAK
 case 30:
 /* rule 30 can match eol */
 YY_RULE_SETUP
-#line 51 "p1.l"
+#line 54 "p1.l"
 ;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 53 "p1.l"
-printf("\nError lexico, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
+#line 56 "p1.l"
+{ printf("\nError lexico, simbolo no reconocido %s en la linea %d\n", yytext, yylineno); lexical_errors_count++; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 55 "p1.l"
+#line 58 "p1.l"
 ECHO;
 	YY_BREAK
-#line 1002 "lex.yy.c"
+#line 1005 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMENT):
 	yyterminate();
@@ -2016,6 +2019,18 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 55 "p1.l"
+#line 58 "p1.l"
 
 
+
+
+int comprobar_ancho() {
+    if (yyleng>32)
+        return 0;
+    return 1;
+}
+int comprobar_rango() {
+    if (atoll(yytext) > 4294967296)
+        return 0;
+    return 1;
+}

@@ -7,6 +7,7 @@
 
 
 void yyerror();
+extern char *yytext;
 extern int yylex();
 extern int yylineno;
 Lista tablaSimb;
@@ -191,10 +192,14 @@ expression : expression PLUSOP expression
 
 %%
 
-void yyerror()
-{
-printf("Se ha producido un error sintactico en  la linea %d esta expresion\n",yylineno);
+void yyerror() {
+    printf("Error sintactico en la linea %d. Token problematico: '%s'\n", yylineno, yytext);
+    syntactic_errors_count++;
+        printf("Errores lexicos: %d\n", lexical_errors_count);
+        printf("Errores sintacticos: %d\n", syntactic_errors_count);
+        printf("Errores semanticos: %d\n", semantic_errors_count);
 }
+
 
 // FUNCION PARA VER SI PERTENECE A LA TABLA
 int perteneceTablaS(char *nombre) {
@@ -271,3 +276,4 @@ void imprimirTablaS() {
 // crea un nuevo regisro 
 
 // liberar el registor para que pueda ser utlizada 
+

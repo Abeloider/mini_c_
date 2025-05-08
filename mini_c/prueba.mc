@@ -1,18 +1,14 @@
 pruebaSem () {
 var int a;
 var int a;
-var int h;
-var int q;
-const int a=0,b=0;
-const int k=0;
-ÇÇÇÇÇÇÇÇ;
-vra;
+var int l;
+l= 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999;
 
-q=12;
-i=5;
+const int a=0,b=0;
+read (a, b);
 a = 5+x;
 b = 5;
-c = 0;
+c = 0; 
 read (a, b);
 read (c);
 }
