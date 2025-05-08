@@ -50,6 +50,6 @@ print                                       return PRINT;
 [ \n\t\r]+                                  ;
 "//"(.*)[\n]                                ;
 
-{panico}                                    printf("\nERROR, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
-                                      
+{panico}+                                    printf("\nError lexico, simbolo no reconocido %s en la linea %d\n",yytext,yylineno);
+
 %%

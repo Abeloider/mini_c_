@@ -5,7 +5,8 @@ var int h;
 var int q;
 const int a=0,b=0;
 const int k=0;
-vra int l;
+ÇÇÇÇÇÇÇÇ;
+vra;
 
 q=12;
 i=5;

@@ -264,8 +264,6 @@ void imprimirTablaS() {
     printf("Total de simbolos: %d\n", contador);
 }
 
-
-
 // ensamblador 
 
 // siempre que hacermos una cancatena liberamos la lista 
@@ -273,6 +271,3 @@ void imprimirTablaS() {
 // crea un nuevo regisro 
 
 // liberar el registor para que pueda ser utlizada 
-
-
-//

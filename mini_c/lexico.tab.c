@@ -1607,12 +1607,9 @@ void imprimirTablaS() {
     printf("Total de simbolos: %d\n", contador);
 }
 
-
-
 // ensamblador 
 
 // siempre que hacermos una cancatena liberamos la lista 
-
 
 // crea un nuevo regisro 
 
