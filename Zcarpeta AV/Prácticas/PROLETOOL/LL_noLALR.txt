@@ -1,0 +1,15 @@
+/*
+ * Gramática de expresiones aritméticas LL(1) y no LALR(1).
+ */
+
+grammar gramLL1_noLALR1
+{
+    analysis    LL1,LALR1;
+    nonterminal S,X,E,F,A;
+
+    S := '(' X | E ']' | F ')';
+    X := E ')' | F ']';
+    E := A;
+    F := A;
+    A := ;
+}

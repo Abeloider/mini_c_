@@ -1,0 +1,15 @@
+/*
+ * Gramática de expresiones aritméticas LL(1).
+ */
+
+grammar gramLL1
+{
+    analysis    LL1;
+    nonterminal S,A,B,C;
+    terminal   a,b,c;
+
+    S := A B C;
+    A := a A | ;
+    B := b B | ;
+    C := c C | ;
+}

@@ -5,7 +5,7 @@
     #include <string.h>
     
     
-//extern YYSTYPE yylval; no hace falta pornerlo 
+
 void error();
 %}
 digito              [0-9]

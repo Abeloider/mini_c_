@@ -523,7 +523,7 @@ char *yytext;
     #include <string.h>
     
     
-//extern YYSTYPE yylval; no hace falta pornerlo 
+
 void error();
 #line 529 "lex.yy.c"
 

@@ -1,0 +1,15 @@
+/*
+ * Gramática  ambigua.
+ */
+
+grammar gram
+{
+    analysis    SLR1;
+    nonterminal S,A,L;
+    terminal   id;
+
+    S := S A | A;
+    A := id '=' L ';';
+    L := id | L '=' L;
+ 
+}

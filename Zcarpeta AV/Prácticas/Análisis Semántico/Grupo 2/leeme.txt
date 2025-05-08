@@ -1,0 +1,3 @@
+En los dos vídeos, Análisis Semántico 1 y 2, aparece una explicación breve de lo que hay que hacer para las comprobaciones semánticas y la generación de la sección de datos del programa ensamblador.
+Debéis tener en cuenta que los vídeos no los he grabado este curso y, por tanto, la sintaxis del lenguaje fuente es ligeramente diferente a la de nuestro miniC.
+Los tres ficheros con formato pdf de la carpeta, son los que uso en los vídeos, pero con la sintaxis actualizada. 

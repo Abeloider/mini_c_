@@ -1,0 +1,14 @@
+/*
+ * Gramática SS transformada para LL
+ */
+
+grammar gramSS_transformada
+{
+    analysis    LL1;
+    nonterminal S, S1, S2;
+    terminal   a;
+
+    S := a S1 ;
+    S1:= | S S2;
+    S2 := '+' S1 | '*' S1 ;
+}

@@ -1,0 +1,13 @@
+/*
+ * Gramática  LL(1).
+ */
+
+grammar gramLL1
+{
+    analysis    LL1;
+    nonterminal S;
+    terminal   a,b,c;
+
+    S := a | b S c S b;
+ 
+}

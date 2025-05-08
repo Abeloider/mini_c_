@@ -1,0 +1,16 @@
+/*
+ * Gramática matrices.
+ */
+
+grammar matrices
+{
+    analysis    SLR1;
+    nonterminal M, F, Fs, Ns;
+    terminal   num;
+
+    M := '(' F Fs ')'  ;
+    F := num Ns ';' ;
+    Fs := F Fs  |   ;
+    Ns := num Ns  |  ;
+}
+

@@ -1,0 +1,11 @@
+grammar LR
+{
+    analysis    SLR1,LALR1,LR1;
+    nonterminal S, A, B;
+    terminal a, b, c, d;
+
+
+    S := A c B d | B d A c;
+    A := a ;
+    B := a ;
+}

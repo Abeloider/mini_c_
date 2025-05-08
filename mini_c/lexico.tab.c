@@ -550,10 +550,10 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    50,    50,    50,    70,    71,    72,    75,    80,    87,
-      97,   106,   117,   118,   121,   133,   134,   135,   136,   137,
-     138,   141,   142,   145,   146,   151,   161,   174,   175,   176,
-     177,   178,   179,   180,   181,   187
+       0,    50,    50,    50,    72,    73,    74,    77,    82,    89,
+      99,   108,   119,   120,   123,   135,   136,   137,   138,   139,
+     140,   143,   144,   147,   148,   153,   163,   176,   177,   178,
+     179,   180,   181,   182,   183,   189
 };
 #endif
 
@@ -1183,160 +1183,162 @@ yyreduce:
   case 3: /* program: $@1 ID LPAREN RPAREN LCORCH declarations statement_list RCORCH  */
 #line 58 "lexico.y"
 {
-        imprimirTablaS();
-        free((yyvsp[-6].c)); // liberam el ID del nombre del programa 
-
-        // Imprimir resumen de errores
+         // Imprimir resumen de errores
         printf("Errores lexicos: %d\n", lexical_errors_count);
         printf("Errores sintacticos: %d\n", syntactic_errors_count);
         printf("Errores semanticos: %d\n", semantic_errors_count);
+
+        imprimirTablaS();
+        free((yyvsp[-6].c)); // liberam el ID del nombre del programa 
+
+        
 }
-#line 1195 "lexico.tab.c"
+#line 1197 "lexico.tab.c"
     break;
 
   case 6: /* declarations: %empty  */
-#line 72 "lexico.y"
+#line 74 "lexico.y"
                                     {}
-#line 1201 "lexico.tab.c"
+#line 1203 "lexico.tab.c"
     break;
 
   case 7: /* tipo: INT  */
-#line 75 "lexico.y"
+#line 77 "lexico.y"
                                     {}
-#line 1207 "lexico.tab.c"
+#line 1209 "lexico.tab.c"
     break;
 
   case 8: /* var_list: ID  */
-#line 80 "lexico.y"
+#line 82 "lexico.y"
                  { if (!(perteneceTablaS((yyvsp[0].c)))) añadeEntrada((yyvsp[0].c),VARIABLE);
                         else {
-                        printf("Error en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
+                        printf("Error semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
                         semantic_errors_count++;
                         }
                         free((yyvsp[0].c));
                 }
-#line 1219 "lexico.tab.c"
+#line 1221 "lexico.tab.c"
     break;
 
   case 9: /* var_list: var_list COMMA ID  */
-#line 87 "lexico.y"
+#line 89 "lexico.y"
                         {if (!(perteneceTablaS((yyvsp[0].c)))) añadeEntrada((yyvsp[0].c),VARIABLE);
                         else {
-                        printf("Error en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
+                        printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
                         semantic_errors_count++;
                         }
                         free((yyvsp[0].c));
                         }
-#line 1231 "lexico.tab.c"
+#line 1233 "lexico.tab.c"
     break;
 
   case 10: /* const_list: ID ASSIGNOP expression  */
-#line 97 "lexico.y"
+#line 99 "lexico.y"
                                     {
                 if (!(perteneceTablaS((yyvsp[-2].c)))) 
                     añadeEntrada((yyvsp[-2].c), CONSTANTE);
                 else {
-                    printf("Error en linea %d: %s ya declarada\n", yylineno, (yyvsp[-2].c));
+                    printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[-2].c));
                     semantic_errors_count++;
                 }  
                     free((yyvsp[-2].c));
             }
-#line 1245 "lexico.tab.c"
+#line 1247 "lexico.tab.c"
     break;
 
   case 11: /* const_list: const_list COMMA ID ASSIGNOP expression  */
-#line 106 "lexico.y"
+#line 108 "lexico.y"
                                               {
                 if (!(perteneceTablaS((yyvsp[-2].c)))) 
                     añadeEntrada((yyvsp[-2].c), CONSTANTE);
                 else {
-                    printf("Error en linea %d: %s ya declarada\n", yylineno, (yyvsp[-2].c));
+                    printf("Error semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[-2].c));
                     semantic_errors_count++;
                 }
                 free((yyvsp[-2].c));
             }
-#line 1259 "lexico.tab.c"
+#line 1261 "lexico.tab.c"
     break;
 
   case 13: /* statement_list: %empty  */
-#line 118 "lexico.y"
+#line 120 "lexico.y"
                                     {}
-#line 1265 "lexico.tab.c"
+#line 1267 "lexico.tab.c"
     break;
 
   case 14: /* statement: ID ASSIGNOP expression SEMICOLON  */
-#line 121 "lexico.y"
+#line 123 "lexico.y"
                                             {  
     if (!(perteneceTablaS((yyvsp[-3].c)))) {
-        printf("Error en linea %d: %s no declarada\n", yylineno, (yyvsp[-3].c));
+        printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[-3].c));
         semantic_errors_count++;
     }
     else if ((esConstante((yyvsp[-3].c)))) {
-            printf("Error en linea %d: %s es constante\n", yylineno, (yyvsp[-3].c));
+            printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[-3].c));
             semantic_errors_count++;      
         }
         free((yyvsp[-3].c));
     }
-#line 1281 "lexico.tab.c"
+#line 1283 "lexico.tab.c"
     break;
 
   case 24: /* print_item: STRING  */
-#line 146 "lexico.y"
+#line 148 "lexico.y"
              {añadeEntrada((yyvsp[0].c),CADENA); contCadena++;
     free((yyvsp[0].c));
     }
-#line 1289 "lexico.tab.c"
+#line 1291 "lexico.tab.c"
     break;
 
   case 25: /* read_list: ID  */
-#line 151 "lexico.y"
+#line 153 "lexico.y"
                {if (!(perteneceTablaS((yyvsp[0].c)))) {
-                    printf("Error en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c)); 
+                    printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c)); 
                     semantic_errors_count++;
                     }  
                 else if (esConstante((yyvsp[0].c))) {
-                    printf("Error en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
+                    printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
                     semantic_errors_count++;                    
                     }
                     free((yyvsp[0].c));
                 }
-#line 1304 "lexico.tab.c"
+#line 1306 "lexico.tab.c"
     break;
 
   case 26: /* read_list: read_list COMMA ID  */
-#line 161 "lexico.y"
+#line 163 "lexico.y"
                          {if (!(perteneceTablaS((yyvsp[0].c)))) {
-                            printf("Error en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
+                            printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
                             semantic_errors_count++;        
                         }
                         else if ((esConstante((yyvsp[0].c)))) {
-                            printf("Error en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
+                            printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
                             semantic_errors_count++;
                             }
                             free((yyvsp[0].c));
                          }
-#line 1319 "lexico.tab.c"
+#line 1321 "lexico.tab.c"
     break;
 
   case 34: /* expression: ID  */
-#line 181 "lexico.y"
+#line 183 "lexico.y"
             {if (!(perteneceTablaS((yyvsp[0].c)))) {
-                printf("Error en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
+                printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
                 semantic_errors_count++;
             }  
                 free((yyvsp[0].c));
             }
-#line 1330 "lexico.tab.c"
+#line 1332 "lexico.tab.c"
     break;
 
   case 35: /* expression: NUM  */
-#line 187 "lexico.y"
+#line 189 "lexico.y"
             {free((yyvsp[0].c));}
-#line 1336 "lexico.tab.c"
+#line 1338 "lexico.tab.c"
     break;
 
 
-#line 1340 "lexico.tab.c"
+#line 1342 "lexico.tab.c"
 
       default: break;
     }
@@ -1529,7 +1531,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 190 "lexico.y"
+#line 192 "lexico.y"
 
 
 void yyerror()

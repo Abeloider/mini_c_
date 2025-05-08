@@ -1,0 +1,12 @@
+/*
+ * Gramática para clase 26-4-2022
+ */
+
+grammar gramNoLL1_SLR1
+{
+    analysis    LL1,LR1,LALR1,SLR1;
+    nonterminal S;
+    terminal   a;
+
+    S := S S '+' | S S '*' | a;
+}

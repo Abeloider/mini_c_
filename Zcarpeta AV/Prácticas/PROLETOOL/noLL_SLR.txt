@@ -1,0 +1,14 @@
+/*
+ * Gramática de expresiones aritméticas no LL(1).
+ */
+
+grammar gramNoLL1_SLR1
+{
+    analysis    LL1,SLR1;
+    nonterminal E,T,F;
+    terminal   id;
+
+    E := E '+' T | T;
+    T := T '*' F | F;
+    F := '(' E ')' | id;
+}

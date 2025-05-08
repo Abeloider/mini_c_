@@ -1,0 +1,13 @@
+/*
+ * Gramática expresiones artiméticas ambigua.
+ */
+
+grammar if
+{
+    analysis    SLR1;
+    nonterminal E;
+    terminal   id;
+
+    E := E '+' E | E '*' E  | '(' E ')' | id;
+  
+}

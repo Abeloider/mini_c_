@@ -1,0 +1,16 @@
+/*
+ * Gramática clase 6.
+ */
+
+grammar matrices
+{
+    analysis    SLR1;
+    nonterminal S, A, B, C;
+    terminal   a,b,c,d,e;
+
+    S :=  A C | B d C ;
+    A := a b | a e ;
+    B :=   ;
+    C := c  ;
+}
+

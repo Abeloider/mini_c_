@@ -1,0 +1,15 @@
+/*
+ * Gramática usada para explicar el método LL
+ */
+
+grammar gram_LL
+{
+    analysis    LL1;
+    nonterminal S, A, B, C;
+    terminal a;
+    
+    S := '(' A ')';
+    A := C B ;
+    B := ';' A  | ;
+    C := a | S;
+}

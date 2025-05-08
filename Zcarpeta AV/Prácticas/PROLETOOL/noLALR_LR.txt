@@ -1,0 +1,14 @@
+/*
+ * Gramática no LALR y sí LR-Canónica.
+ */
+
+grammar gramNoLALR1_LR1
+{
+    analysis    SLR1,LALR1,LR1;
+    nonterminal S,A,B;
+    terminal   a,b,c,d,e;
+
+    S :=a A d | b B d | a B e | b A e;
+    A := c;
+    B := c;
+}

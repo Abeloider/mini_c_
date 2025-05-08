@@ -1,0 +1,14 @@
+/*
+ * Gramática de expresiones aritméticas LL(1) y no SLR(1).
+ */
+
+grammar gramLL1_noSLR1
+{
+    analysis    LL1,SLR1;
+    nonterminal S,T,V;
+    terminal   a,b;
+
+    S := T a T b | V b V a;
+    T := ;
+    V := ;
+}
