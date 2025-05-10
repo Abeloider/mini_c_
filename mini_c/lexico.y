@@ -48,6 +48,8 @@ char *c;
 
 //hay que añadir la inicializacion entonces añadimos tablaSimb=creaLS() justo donde pone; 
 // cremos un contador para los erroes del semantico sintactico y lexico imprimimos alfinal
+
+
 program:  { 
             tablaSimb=creaLS(); 
             semantic_errors_count = 0; // Inicializar contadores
@@ -56,16 +58,14 @@ program:  {
 
         } 
         ID LPAREN RPAREN LCORCH declarations  statement_list RCORCH 
-{
-         // Imprimir resumen de errores
+        {
+        // Imprimir resumen de errores
         printf("Errores lexicos: %d\n", lexical_errors_count);
         printf("Errores sintacticos: %d\n", syntactic_errors_count);
         printf("Errores semanticos: %d\n", semantic_errors_count);
 
         imprimirTablaS();
-        free($2); // liberam el ID del nombre del programa 
-
-        
+        free($2); // libera el ID del nombre del programa        
 }
     ;
 
@@ -105,6 +105,7 @@ const_list : ID ASSIGNOP expression {
                     semantic_errors_count++;
                 }  
                     free($1);
+                    
             }
     | const_list COMMA ID ASSIGNOP expression {
                 if (!(perteneceTablaS($3))) 
@@ -114,12 +115,34 @@ const_list : ID ASSIGNOP expression {
                     semantic_errors_count++;
                 }
                 free($3);
+                
             }
     ;
 
-statement_list : statement_list statement
-    |   /* LAMBDA */                {} 
+
+
+
+
+statement_list : statement_list statement {
+                    $$ = $1;
+                    concatenaLC($$,$2);
+                    liberaLC($2);
+}
+    |   /* LAMBDA */                {   
+        
+        // ?????????????????????????????????????????????????????
+
+    } 
     ;
+
+
+
+
+
+
+
+
+
 
 statement : ID ASSIGNOP expression SEMICOLON{  
     if (!(perteneceTablaS($1))) {
@@ -141,17 +164,97 @@ statement : ID ASSIGNOP expression SEMICOLON{
     |   READ LPAREN read_list RPAREN SEMICOLON
     ;
 
-print_list : print_item
-    |print_list COMMA print_item
+
+
+
+
+
+print_list : print_item 
+            {  $$=$1;  }
+
+    |print_list COMMA print_item 
+            {
+            $$=$1;
+            concatenaLC($$,$3);
+            liberaLC($3);
+            }
     ;
+
+
+
+
+
+
 
 print_item : expression
-    | STRING {añadeEntrada($1,CADENA); contCadena++;
-    free($1);
+            {
+
+                $$ = $1;
+                Operacion op;
+                op.op = "li";
+                op.res = "$v0";
+                op.arg1 = "1";
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+                op.op = "move";
+                op.res = "$a0";
+                op.arg1 = recuperaResLC($1);
+                op.arg2 = NULL;
+                liberarReg(op.arg1);
+                insertaLC($$,finalLC($$),op);
+                op.op = "syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+
+
+
+
+
+
+
+            }
+
+
+
+
+    | STRING {  añadeEntrada($1,CADENA); 
+                contCadena++;
+                free($1);
+
+                $$ = creaLC();
+                Operacion op;
+                op.op = "la";
+                op.res = "$a0";
+                char* str;
+                asprintf(&str,"$str%d",numStr-1);
+                op.arg1 = str;
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+                op.op = "li";
+                op.res = "$v0";
+                op.arg1 = "4";
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+                op.op = "syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+
     }
+
     ;
 
-read_list : ID {if (!(perteneceTablaS($1))) {
+
+
+
+
+
+
+read_list : ID 
+                {if (!(perteneceTablaS($1))) {
                     printf("Error semantico en linea %d: %s no declarada\n", yylineno, $1); 
                     semantic_errors_count++;
                     }  
@@ -159,36 +262,258 @@ read_list : ID {if (!(perteneceTablaS($1))) {
                     printf("Error semantico en linea %d: %s es constante\n", yylineno, $1);
                     semantic_errors_count++;                    
                     }
-                    free($1);
+                free($1);
+                
+
+                $$=creaLC();
+                Operacion op;
+                op.op="li";
+                op.res = "$v0";
+                op.arg1="5";
+                op.arg2=NULL;
+                insertaLC($$,finalLC($$),op);
+                op.op="syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC($$,finalLC($$),op);
+                op.op="sw";
+                op.res="$v0";
+                op.arg1=concatena("_",$1);
+                op.arg2=NULL;
+                insertaLC($$,finalLC($$),op);
+                liberarReg(op.res);
                 }
-    | read_list COMMA ID {if (!(perteneceTablaS($3))) {
-                            printf("Error semantico en linea %d: %s no declarada\n", yylineno, $3);
-                            semantic_errors_count++;        
-                        }
-                        else if ((esConstante($3))) {
-                            printf("Error semantico en linea %d: %s es constante\n", yylineno, $3);
-                            semantic_errors_count++;
-                            }
-                            free($3);
-                         }
+
+
+            
+    | read_list COMMA ID 
+                {if (!(perteneceTablaS($3))) {
+                    printf("Error semantico en linea %d: %s no declarada\n", yylineno, $3);
+                    semantic_errors_count++;        
+                }
+                else if ((esConstante($3))) {
+                    printf("Error semantico en linea %d: %s es constante\n", yylineno, $3);
+                    semantic_errors_count++;
+                    }
+                free($3);
+
+                 $$=$1;
+                  Operacion op;
+                  op.op="li";
+                  op.res = "$v0";
+                  op.arg1="5";
+                  op.arg2=NULL;
+                  insertaLC($$,finalLC($$),op);
+                  op.op="syscall";
+                  op.res = NULL;
+                  op.arg1 = NULL;
+                  op.arg2 = NULL;
+                  insertaLC($$,finalLC($$),op);
+                  op.op="sw";
+                  op.res="$v0";
+                  op.arg1=concatena("_",$3);
+                  op.arg2=NULL;
+                  insertaLC($$,finalLC($$),op);
+                  liberarReg(op.res);
+
+
+                }
     ;
 
 
-expression : expression PLUSOP expression
-    |   expression MINUSOP expression
-    |   expression POR expression
-    |   expression DIV expression
-    |   LPAREN expression INTERR expression DOSPUNT expression RPAREN
-    |   MINUSOP expression %prec UMINUS
-    |   LPAREN expression RPAREN
+
+
+
+expression : 
+                expression PLUSOP expression {
+                    $$ = $1;
+                    concatenaLC($$,$3);
+                    Operacion oper; 
+                    oper.op = “add”;
+                    oper.res = recuperaResLC($1);
+                    oper.arg1 = recuperaResLC($1);
+                    oper.arg2 = recuperaResLC($3);
+                    insertaLC($$,finalLC($$),oper);
+                    liberaLC($3);
+                    liberarReg(oper.arg2); 
+                }
+            |   expression MINUSOP expression {
+                    $$ = $1;
+                    concatenaLC($$,$3);
+                    Operacion oper; 
+                    oper.op = “sub”;
+                    oper.res = recuperaResLC($1);
+                    oper.arg1 = recuperaResLC($1);
+                    oper.arg2 = recuperaResLC($3);
+                    insertaLC($$,finalLC($$),oper);
+                    liberaLC($3);
+                    liberarReg(oper.arg2); 
+                }
+            |   expression POR expression {
+                    $$ = $1;
+                    concatenaLC($$,$3);
+                    Operacion oper; 
+                    oper.op = “mul”;
+                    oper.res = recuperaResLC($1);
+                    oper.arg1 = recuperaResLC($1);
+                    oper.arg2 = recuperaResLC($3);
+                    insertaLC($$,finalLC($$),oper);
+                    liberaLC($3);
+                    liberarReg(oper.arg2); 
+            }
+            |   expression DIV expression {   
+                    $$ = $1;
+                    concatenaLC($$,$3);
+                    Operacion oper; 
+                    oper.op = “div”;
+                    oper.res = recuperaResLC($1);
+                    oper.arg1 = recuperaResLC($1);
+                    oper.arg2 = recuperaResLC($3);
+                    insertaLC($$,finalLC($$),oper);
+                    liberaLC($3);
+                    liberarReg(oper.arg2); 
+                    }
+
+
+
+
+
+
+
+    
+    |   LPAREN expression INTERR expression DOSPUNT expression RPAREN{
+            $$ = creaLC();
+            concatenaLC($$, $2);  // Añadimos código de la condición
+
+            char* etiq1 = nuevaEtiqueta();  // Etiqueta para el caso verdadero
+            char* etiq2 = nuevaEtiqueta();  // Etiqueta para el final
+
+            Operacion op;
+            // Salto condicional: si es falso, salta a etiq1
+            op.op = "beqz";
+            op.arg1 = recuperaResLC($2);
+            op.arg2 = etiq1;
+            op.res = NULL;
+            insertaLC($$, finalLC($$), op);
+
+            // Código para el caso verdadero
+            concatenaLC($$, $4);
+            op.op = "b";
+            op.arg1 = etiq2;
+            op.arg2 = NULL;
+            insertaLC($$, finalLC($$), op);
+
+            // Etiqueta para el caso falso
+            op.op = "etiq";
+            op.arg1 = etiq1;
+            op.arg2 = NULL;
+            insertaLC($$, finalLC($$), op);
+
+            // Código para el caso falso
+            concatenaLC($$, $6);
+
+            // Etiqueta final
+            op.op = "etiq";
+            op.arg1 = etiq2;
+            op.arg2 = NULL;
+            insertaLC($$, finalLC($$), op);
+
+            // Liberamos las listas y registros que ya no necesitamos
+            liberaLC($2);
+            liberaLC($4);
+            liberaLC($6);
+            liberarReg(recuperaResLC($2));
+
+            // El resultado final estará en el registro de $4 o $6
+            guardaResLC($$, recuperaResLC($4));  // O podría ser $6, depende de qué camino se tome
+        
+
+        
+    }
+
+
+
+
+
+    
+    |   MINUSOP expression %prec UMINUS {
+
+            $$=$2;
+            Operacion op;
+            op.op="neg";
+            op.res=recuperaResLC($2);
+            op.arg1=recuperaResLC($2);
+            op.arg2=NULL;
+            insertaLC($$,finalLC($$),op);
+        }
+
+
+
+
+    |   LPAREN expression RPAREN {
+        { $$ = $2; }
+    }
+    
+
+
+
     |   ID  {if (!(perteneceTablaS($1))) {
                 printf("Error semantico en linea %d: %s no declarada\n", yylineno, $1);
                 semantic_errors_count++;
             }  
-                free($1);
+            free($1);
+            $$=creaLC();
+            Operacion op;
+            op.op="lw";
+            op.res = obtenerReg();
+            op.arg1=concatena("_",$1);
+            op.arg2=NULL;
+            insertaLC($$,finalLC($$),op);
+            guardaResLC($$,op.res);
             }
-    |   NUM {free($1);}
+
+
+
+            
+    |   NUM {free($1);
+
+            $$=creaLC();
+            Operacion op;
+            op.op="li";
+            op.res = obtenerReg();
+            op.arg1=$1;
+            op.arg2=NULL;
+            insertaLC($$,finalLC($$),op); //donde la inserto,en que posicion, el que guardo
+            guardaResLC($$,op.res);
+
+    
+        }
     ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %%
 
@@ -269,11 +594,12 @@ void imprimirTablaS() {
     printf("Total de simbolos: %d\n", contador);
 }
 
-// ensamblador 
 
-// siempre que hacermos una cancatena liberamos la lista 
 
-// crea un nuevo regisro 
-
-// liberar el registor para que pueda ser utlizada 
+char* nuevaEtiqueta(){
+    char* etiq;
+    asprintf(&etiq,"etiq%d",contador_etiq);
+    contador_etiq++;
+    return etiq;
+}
 
