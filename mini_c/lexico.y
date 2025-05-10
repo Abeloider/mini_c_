@@ -55,9 +55,8 @@ program:  {
             semantic_errors_count = 0; // Inicializar contadores
             syntactic_errors_count = 0;
             lexical_errors_count = 0;   // Inicializar
-
         } 
-        ID LPAREN RPAREN LCORCH declarations  statement_list RCORCH 
+        ID LPAREN RPAREN LCORCH declarations statement_list RCORCH 
         {
         // Imprimir resumen de errores
         printf("Errores lexicos: %d\n", lexical_errors_count);
@@ -65,18 +64,37 @@ program:  {
         printf("Errores semanticos: %d\n", semantic_errors_count);
 
         imprimirTablaS();
-        free($2); // libera el ID del nombre del programa        
+        free($2); // libera el ID del nombre del programa
+
+                imprimeLS();
+                concatenaLC($6,$7);
+                imprimirLC($6); 
+                liberaLC($6);
+                liberaLC($7);
+                liberaLS(ls);
 }
     ;
 
 // asignamnos tipo = variable
-declarations : declarations VAR tipo var_list SEMICOLON
-    | declarations CONST tipo  const_list    SEMICOLON
-    |   /* LAMBDA */                {}    
-    ;  
+declarations : declarations VAR tipo var_list SEMICOLON 
+            {
+                $$=$1;             // asignamos el valor izquierdo semantico al valor derecho $1
+                concatenaLC($$,$4);     
+                liberaLC($4);    
+            }
+            | declarations CONST tipo  const_list   SEMICOLON 
+            {
+                $$=$1;             // asignamos el valor izquierdo semantico al valor derecho $1
+                concatenaLC($$,$4);     
+                liberaLC($4);    
+            }
+            |   /* LAMBDA */  { $$=creaLC(); }     
+            ; 
 
-tipo :     INT                      {}
-    ;
+
+
+tipo :     INT  {$$ = VARIABLE;} // Asignar el valor semántico al lado izquierdo de la regla
+            ;
 
 
 
@@ -86,17 +104,27 @@ var_list :   ID  { if (!(perteneceTablaS($1))) añadeEntrada($1,VARIABLE);
                         semantic_errors_count++;
                         }
                         free($1);
+
+                        
+
                 }
     | var_list COMMA ID {if (!(perteneceTablaS($3))) añadeEntrada($3,VARIABLE);
-                        else {
-                        printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, $3);
-                        semantic_errors_count++;
-                        }
+                            else {
+                            printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, $3);
+                            semantic_errors_count++;
+                            }
                         free($3);
+
                         }
     ;
                        
-    
+
+
+
+
+
+
+
 const_list : ID ASSIGNOP expression {
                 if (!(perteneceTablaS($1))) 
                     añadeEntrada($1, CONSTANTE);
@@ -105,8 +133,26 @@ const_list : ID ASSIGNOP expression {
                     semantic_errors_count++;
                 }  
                     free($1);
-                    
+
+
+
+                            
+                    if (entrada_id) {
+                        $$ = ???????(entrada_id, $1);
+                    } else {
+                        $$ = NULL;
+                    }
+                        liberaLC($3);
             }
+
+
+
+                    /* 1. Verificación semántica de $1
+                       2. $$ = código de asignación
+                       3. Liberar registro de $3 */
+                    liberaLC($3); 
+
+            
     | const_list COMMA ID ASSIGNOP expression {
                 if (!(perteneceTablaS($3))) 
                     añadeEntrada($3, CONSTANTE);
@@ -115,7 +161,26 @@ const_list : ID ASSIGNOP expression {
                     semantic_errors_count++;
                 }
                 free($3);
-                
+
+
+
+
+                    if (entrada_id) {
+                        $$ = ???????(entrada_id, $3);
+                    } else {
+                        $$ = NULL;
+                    }
+                    liberaLC($5);
+
+
+
+                /* 1. Verificación semántica de $3
+                   2. $$ = código de asignación
+                   3. Liberar registro de $5 */
+                   
+
+
+
             }
     ;
 
@@ -128,11 +193,7 @@ statement_list : statement_list statement {
                     concatenaLC($$,$2);
                     liberaLC($2);
 }
-    |   /* LAMBDA */                {   
-        
-        // ?????????????????????????????????????????????????????
-
-    } 
+    |   /* LAMBDA */  { $$=creaLC(); } 
     ;
 
 
