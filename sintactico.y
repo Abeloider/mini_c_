@@ -171,9 +171,7 @@ statement_list:  %empty         {
                 }
               }
               ;       
-statement: id "=" expression ";"        {buscarID($1,1);
-                                        
-                                        
+statement: id "=" expression ";"        {buscarID($1,1);                 
                                         if(analisis_ok()) {
                                           $$ = $3;
                                           Operacion op;
