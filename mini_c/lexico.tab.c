@@ -549,12 +549,12 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    51,    51,    51,    73,    74,    75,    78,    83,    90,
-     100,   109,   120,   121,   124,   136,   137,   138,   139,   140,
-     141,   144,   145,   148,   149,   154,   164,   177,   178,   179,
-     180,   181,   182,   183,   184,   190
+       0,    53,    53,    53,    79,    85,    91,    96,   101,   111,
+     125,   149,   182,   187,   193,   214,   217,   260,   285,   328,
+     330,   336,   338,   354,   383,   416,   450,   489,   501,   513,
+     525,   545,   600,   614,   621,   639
 };
 #endif
 
@@ -1170,85 +1170,129 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* $@1: %empty  */
-#line 51 "lexico.y"
+#line 53 "lexico.y"
           { 
             tablaSimb=creaLS(); 
             semantic_errors_count = 0; // Inicializar contadores
             syntactic_errors_count = 0;
             lexical_errors_count = 0;   // Inicializar
-
         }
-#line 1182 "lexico.tab.c"
+#line 1181 "lexico.tab.c"
     break;
 
   case 3: /* program: $@1 ID LPAREN RPAREN LCORCH declarations statement_list RCORCH  */
-#line 59 "lexico.y"
-{
-         // Imprimir resumen de errores
+#line 60 "lexico.y"
+        {
+        // Imprimir resumen de errores
         printf("Errores lexicos: %d\n", lexical_errors_count);
         printf("Errores sintacticos: %d\n", syntactic_errors_count);
         printf("Errores semanticos: %d\n", semantic_errors_count);
 
         imprimirTablaS();
-        free((yyvsp[-6].c)); // liberam el ID del nombre del programa 
+        free((yyvsp[-6].c)); // libera el ID del nombre del programa
 
-        
+                imprimeLS();            // imprime tabla simbolos
+                concatenaLC((yyvsp[-2].c),(yyvsp[-1].c));     // une el codig de declar y sentencias
+                imprimirLC((yyvsp[-2].c));
+                liberaLC((yyvsp[-2].c));
+                liberaLC((yyvsp[-1].c));
+                liberaLS(ls);
 }
-#line 1198 "lexico.tab.c"
+#line 1202 "lexico.tab.c"
+    break;
+
+  case 4: /* declarations: declarations VAR tipo var_list SEMICOLON  */
+#line 80 "lexico.y"
+            {
+                (yyval.c)=(yyvsp[-4].c);              // asignamos el valor izquierdo semantico al valor derecho $1
+                concatenaLC((yyval.c),(yyvsp[-1].c)); // cocatenamos     
+                liberaLC((yyvsp[-1].c));    
+            }
+#line 1212 "lexico.tab.c"
+    break;
+
+  case 5: /* declarations: declarations CONST tipo const_list SEMICOLON  */
+#line 86 "lexico.y"
+            {
+                (yyval.c)=(yyvsp[-4].c);             // asignamos el valor izquierdo semantico al valor derecho $1
+                concatenaLC((yyval.c),(yyvsp[-1].c));     
+                liberaLC((yyvsp[-1].c));    
+            }
+#line 1222 "lexico.tab.c"
     break;
 
   case 6: /* declarations: %empty  */
-#line 75 "lexico.y"
-                                    {}
-#line 1204 "lexico.tab.c"
+#line 91 "lexico.y"
+                              { (yyval.c)=creaLC(); }
+#line 1228 "lexico.tab.c"
     break;
 
   case 7: /* tipo: INT  */
-#line 78 "lexico.y"
-                                    {}
-#line 1210 "lexico.tab.c"
+#line 96 "lexico.y"
+                {(yyval.c) = VARIABLE;}
+#line 1234 "lexico.tab.c"
     break;
 
   case 8: /* var_list: ID  */
-#line 83 "lexico.y"
+#line 101 "lexico.y"
                  { if (!(perteneceTablaS((yyvsp[0].c)))) añadeEntrada((yyvsp[0].c),VARIABLE);
                         else {
                         printf("Error semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
                         semantic_errors_count++;
                         }
                         free((yyvsp[0].c));
+
+                        
+
                 }
-#line 1222 "lexico.tab.c"
+#line 1249 "lexico.tab.c"
     break;
 
   case 9: /* var_list: var_list COMMA ID  */
-#line 90 "lexico.y"
+#line 111 "lexico.y"
                         {if (!(perteneceTablaS((yyvsp[0].c)))) añadeEntrada((yyvsp[0].c),VARIABLE);
-                        else {
-                        printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
-                        semantic_errors_count++;
-                        }
+                            else {
+                            printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[0].c));
+                            semantic_errors_count++;
+                            }
                         free((yyvsp[0].c));
+
+
+
                         }
-#line 1234 "lexico.tab.c"
+#line 1264 "lexico.tab.c"
     break;
 
   case 10: /* const_list: ID ASSIGNOP expression  */
-#line 100 "lexico.y"
+#line 125 "lexico.y"
                                     {
                 if (!(perteneceTablaS((yyvsp[-2].c)))) 
                     añadeEntrada((yyvsp[-2].c), CONSTANTE);
                 else {
                     printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, (yyvsp[-2].c));
                     semantic_errors_count++;
-                }  
+                } 
                     free((yyvsp[-2].c));
-            }
-#line 1248 "lexico.tab.c"
+
+                    /* 1. Verificación semántica de $1
+                       2. $$ = código de asignación
+                       3. Liberar registro de $3  */
+
+                (yyval.c) = (yyvsp[0].c);  // Código de la expresión
+                Operacion op;
+                op.op = "sw";
+                op.res = recuperaResLC((yyvsp[0].c));  // Registro con el resultado
+                op.arg1 = concatena("_", (yyvsp[-2].c));  // Dirección de memoria de la constante
+                op.arg2 = NULL;
+                insertaLC((yyval.c), finalLC((yyval.c)), op);  // Añade operación SW al código
+                liberarReg(op.res);  // Liberar registro usado
+
+    }
+#line 1292 "lexico.tab.c"
     break;
 
   case 11: /* const_list: const_list COMMA ID ASSIGNOP expression  */
-#line 109 "lexico.y"
+#line 149 "lexico.y"
                                               {
                 if (!(perteneceTablaS((yyvsp[-2].c)))) 
                     añadeEntrada((yyvsp[-2].c), CONSTANTE);
@@ -1257,43 +1301,284 @@ yyreduce:
                     semantic_errors_count++;
                 }
                 free((yyvsp[-2].c));
-            }
-#line 1262 "lexico.tab.c"
+
+                /* 1. Verificación semántica de $3
+                   2. $$ = código de asignación
+                   3. Liberar registro de $5 */
+
+                // Generar código para la expresión
+                ListaC expr_code = (yyvsp[0].c);
+                Operacion op;
+                op.op = "sw";
+                op.res = recuperaResLC(expr_code);
+                op.arg1 = concatena("_", (yyvsp[-2].c));
+                op.arg2 = NULL;
+                insertaLC(expr_code, finalLC(expr_code), op);  // Añade SW al código de la expresión
+                liberarReg(op.res);
+
+                // Concatenar al código existente
+                concatenaLC((yyvsp[-4].c), expr_code);
+                (yyval.c) = (yyvsp[-4].c);  // El código combinado
+                liberaLC(expr_code);  // Liberar la lista temporal
+             
+        }
+#line 1326 "lexico.tab.c"
+    break;
+
+  case 12: /* statement_list: statement_list statement  */
+#line 182 "lexico.y"
+                                          {
+                    (yyval.c) = (yyvsp[-1].c);
+                    concatenaLC((yyval.c),(yyvsp[0].c));
+                    liberaLC((yyvsp[0].c));
+}
+#line 1336 "lexico.tab.c"
     break;
 
   case 13: /* statement_list: %empty  */
-#line 121 "lexico.y"
-                                    {}
-#line 1268 "lexico.tab.c"
+#line 187 "lexico.y"
+                      { (yyval.c)=creaLC(); }
+#line 1342 "lexico.tab.c"
     break;
 
   case 14: /* statement: ID ASSIGNOP expression SEMICOLON  */
-#line 124 "lexico.y"
-                                            {  
+#line 193 "lexico.y"
+                                             {  
     if (!(perteneceTablaS((yyvsp[-3].c)))) {
         printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[-3].c));
         semantic_errors_count++;
-    }
+    }       
     else if ((esConstante((yyvsp[-3].c)))) {
             printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[-3].c));
             semantic_errors_count++;      
         }
         free((yyvsp[-3].c));
+                (yyval.c) = (yyvsp[-1].c);                        
+                Operacion op; 
+                op.op = op; 
+                op.res = recuperaLC((yyvsp[-1].c));        // obtiene el resultado 
+                op.arg1 = concatena("_",(yyvsp[-3].c));    // concatena _ 
+                op.arg2 = NULL ;
+                isnertar((yyval.c),finalLC((yyval.c)),op);    // añadimos la operacion alfinal lista
+                liberaReg(op.res);              // liberamos el registro 
     }
-#line 1284 "lexico.tab.c"
+#line 1366 "lexico.tab.c"
+    break;
+
+  case 15: /* statement: LCORCH statement_list RCORCH  */
+#line 214 "lexico.y"
+                                     {(yyval.c) = (yyvsp[-1].c);}
+#line 1372 "lexico.tab.c"
+    break;
+
+  case 16: /* statement: IF LPAREN expression RPAREN statement ELSE statement  */
+#line 217 "lexico.y"
+                                                             {
+        
+            (yyval.c) = (yyvsp[-4].c);                                  
+            Operacion op;                             
+            char* etiqEndIf = nuevaEtiqueta();        // creamos la etiqueta if    
+            char* etiqElse = nuevaEtiqueta();         // creamos la etiqueta else
+
+            op.op = "beqz";                           // beqz brach if equal to zero
+            op.res = recuperaResLC((yyvsp[-4].c));               // registro con el resutlado de la condicion 
+            op.arg1 = etiqEndIf;                      // saltamos al Endif
+            op.arg2 = NULL;                           // el segundo registro no lo usamos 
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // beqz $t, etiqEndIf
+
+// BLOQUE IF            
+            concatenaLC((yyval.c),(yyvsp[-2].c));                       // añadimos el codigo del bloque if
+            op.op = "b";                              // salto condicional
+            op.res = etiqElse;                        // saltamos a la etiqueta else 
+            op.arg1 = NULL;                           // null oper1
+            op.arg2 = NULL;                           // null oper2
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // b etiqElse
+
+            op.op = concatena(etiqEndIf,":");         // creamos la etiqueta endif con la q concatenamos la etiqueta endif con : 
+            op.res = NULL;                            // null resultado
+            op.arg1 = NULL;                           // null oper1
+            op.arg2 = NULL;                           // null oper2
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // etiqEndIf :
+            
+// BLOQUE ELSE            
+            concatenaLC((yyval.c),(yyvsp[0].c));                       // añadimos el codigo del bloque else
+            op.op = concatena(etiqElse,":");          // crea etiqueta para el else concatenando con : 
+            op.res = NULL;                            // null resultado
+            op.arg1 = NULL;                           // null oper1      
+            op.arg2 = NULL;                           // null oper2
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // etiquetaElse :
+
+// LIBERAMOS     
+            liberarReg(recuperaResLC((yyvsp[-4].c)));            // liberamos la expresion
+            liberaLC((yyvsp[-2].c));                             // liberamos   $5
+            liberaLC((yyvsp[0].c));                             // liberamos   $7
+ }
+#line 1417 "lexico.tab.c"
+    break;
+
+  case 17: /* statement: IF LPAREN expression RPAREN statement  */
+#line 260 "lexico.y"
+                                              {  // LO MISMO QUE ANTES PERO SIN EL ELSE
+            (yyval.c) = (yyvsp[-2].c);                                  
+            Operacion op;                             
+            char* etiqEndIf = nuevaEtiqueta();        // creamos la etiqueta if
+
+            op.op = "beqz";                           // brach if equal to zero
+            op.res = recuperaResLC((yyvsp[-2].c));               // registro con el resutlado de la condicion 
+            op.arg1 = etiqEndIf;                      // saltamos al Endif
+            op.arg2 = NULL;                           // el segundo registro no lo usamos 
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // beqz $t2, etiqEndIf :
+
+        //  AÑADIMOS EL CODIGO DEL BLOQUE IF
+            concatenaLC((yyval.c),(yyvsp[0].c));                       // se genera el codigo del bloque if  
+
+            op.op = concatena(etiqEndIf,":");         // añadimos la etiqueta endif con :  
+            op.res = NULL;                            
+            op.arg1 = NULL;                           
+            op.arg2 = NULL;                           
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // etiqEndif:
+
+            liberarReg(recuperaResLC((yyvsp[-2].c)));            // Liberamos registro de la condición
+            liberaLC((yyvsp[0].c));                             // Liberamos código del bloque if
+    }
+#line 1445 "lexico.tab.c"
+    break;
+
+  case 18: /* statement: WHILE LPAREN expression RPAREN statement  */
+#line 285 "lexico.y"
+                                                 {
+            (yyval.c) = creaLC();                            // inicializamos lista codigo vacia
+            Operacion op;                             // inicializamos op 
+            char* etiqWhile = nuevaEtiqueta();        // creamos la etiqueta while
+            char* etiqEndWhile = nuevaEtiqueta();     // creamos la etiqueta end while
+
+        // ETIQUETA INICIO WHILE 
+            op.op = concatena(etiqWhile,":");         //  
+            op.res = NULL;                            // null resultado
+            op.arg1 = NULL;                           // null oper1
+            op.arg2 = NULL;                           // null oper2
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // etiqWhile :
+            
+            concatenaLC((yyval.c),(yyvsp[-2].c));                       // generamos el codigo de la condicion
+            
+            op.op = "beqz";                           // hacemos un salto condicional
+            op.res = recuperaResLC((yyvsp[-2].c));             
+            op.arg1 = etiqEndWhile;
+            op.arg2 = NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // beqz $X, etiqWhile
+
+            concatenaLC((yyval.c),(yyvsp[0].c));                      // generamos el cuerpo del while
+            
+            op.op = "b";                             // salto al inicio
+            op.res = etiqWhile;                     
+            op.arg1 = NULL; 
+            op.arg2 = NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op);             // b etiqWhile
+
+
+        // ETIEQUETA FINAL WHILE
+            op.op = concatena(etiqEndWhile,":");
+            op.res = NULL;
+            op.arg1 = NULL;
+            op.arg2 = NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op);           // etiqEndWhile :
+
+            liberarReg(recuperaResLC((yyvsp[-2].c)));           // liberamos resultado de $3
+            liberaLC((yyvsp[-2].c));                            // liberamos $3
+            liberaLC((yyvsp[0].c));                            // liberamos $5
+    }
+#line 1491 "lexico.tab.c"
+    break;
+
+  case 19: /* statement: PRINT LPAREN print_list RPAREN SEMICOLON  */
+#line 328 "lexico.y"
+                                                    { (yyval.c) = (yyvsp[-2].c); }
+#line 1497 "lexico.tab.c"
+    break;
+
+  case 20: /* statement: READ LPAREN read_list RPAREN SEMICOLON  */
+#line 330 "lexico.y"
+                                                 { (yyval.c)=(yyvsp[-2].c); }
+#line 1503 "lexico.tab.c"
+    break;
+
+  case 21: /* print_list: print_item  */
+#line 336 "lexico.y"
+                         {  (yyval.c)=(yyvsp[0].c);  }
+#line 1509 "lexico.tab.c"
+    break;
+
+  case 22: /* print_list: print_list COMMA print_item  */
+#line 339 "lexico.y"
+            {
+            (yyval.c)=(yyvsp[-2].c);
+            concatenaLC((yyval.c),(yyvsp[0].c));
+            liberaLC((yyvsp[0].c));
+            }
+#line 1519 "lexico.tab.c"
+    break;
+
+  case 23: /* print_item: expression  */
+#line 355 "lexico.y"
+            {
+
+                (yyval.c) = (yyvsp[0].c);
+                Operacion op;
+                op.op = "li";
+                op.res = "$v0";
+                op.arg1 = "1";
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op = "move";
+                op.res = "$a0";
+                op.arg1 = recuperaResLC((yyvsp[0].c));
+                op.arg2 = NULL;
+                liberarReg(op.arg1);
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op = "syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+
+
+
+            }
+#line 1548 "lexico.tab.c"
     break;
 
   case 24: /* print_item: STRING  */
-#line 149 "lexico.y"
-             {añadeEntrada((yyvsp[0].c),CADENA); contCadena++;
-    free((yyvsp[0].c));
+#line 383 "lexico.y"
+             {  añadeEntrada((yyvsp[0].c),CADENA); 
+                contCadena++;
+                free((yyvsp[0].c));
+                (yyval.c) = creaLC();
+                Operacion op;
+                op.op = "la";
+                op.res = "$a0";
+                char* str;
+                asprintf(&str,"$str%d",numStr-1);
+                op.arg1 = str;
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op = "li";
+                op.res = "$v0";
+                op.arg1 = "4";
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op = "syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+
     }
-#line 1292 "lexico.tab.c"
+#line 1577 "lexico.tab.c"
     break;
 
   case 25: /* read_list: ID  */
-#line 154 "lexico.y"
-               {if (!(perteneceTablaS((yyvsp[0].c)))) {
+#line 417 "lexico.y"
+                {if (!(perteneceTablaS((yyvsp[0].c)))) {
                     printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c)); 
                     semantic_errors_count++;
                     }  
@@ -1301,45 +1586,251 @@ yyreduce:
                     printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
                     semantic_errors_count++;                    
                     }
-                    free((yyvsp[0].c));
+                free((yyvsp[0].c));
+                
+
+                (yyval.c)=creaLC();
+                Operacion op;
+                op.op="li";
+                op.res = "$v0";
+                op.arg1="5";
+                op.arg2=NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op="syscall";
+                op.res = NULL;
+                op.arg1 = NULL;
+                op.arg2 = NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                op.op="sw";
+                op.res="$v0";
+                op.arg1=concatena("_",(yyvsp[0].c));
+                op.arg2=NULL;
+                insertaLC((yyval.c),finalLC((yyval.c)),op);
+                liberarReg(op.res);
                 }
-#line 1307 "lexico.tab.c"
+#line 1612 "lexico.tab.c"
     break;
 
   case 26: /* read_list: read_list COMMA ID  */
-#line 164 "lexico.y"
-                         {if (!(perteneceTablaS((yyvsp[0].c)))) {
-                            printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
-                            semantic_errors_count++;        
-                        }
-                        else if ((esConstante((yyvsp[0].c)))) {
-                            printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
-                            semantic_errors_count++;
-                            }
-                            free((yyvsp[0].c));
-                         }
-#line 1322 "lexico.tab.c"
+#line 451 "lexico.y"
+                {if (!(perteneceTablaS((yyvsp[0].c)))) {
+                    printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
+                    semantic_errors_count++;        
+                }
+                else if ((esConstante((yyvsp[0].c)))) {
+                    printf("Error semantico en linea %d: %s es constante\n", yylineno, (yyvsp[0].c));
+                    semantic_errors_count++;
+                    }
+                free((yyvsp[0].c));
+
+                 (yyval.c)=(yyvsp[-2].c);
+                  Operacion op;
+                  op.op="li";
+                  op.res = "$v0";
+                  op.arg1="5";
+                  op.arg2=NULL;
+                  insertaLC((yyval.c),finalLC((yyval.c)),op);
+                  op.op="syscall";
+                  op.res = NULL;
+                  op.arg1 = NULL;
+                  op.arg2 = NULL;
+                  insertaLC((yyval.c),finalLC((yyval.c)),op);
+                  op.op="sw";
+                  op.res="$v0";
+                  op.arg1=concatena("_",(yyvsp[0].c));
+                  op.arg2=NULL;
+                  insertaLC((yyval.c),finalLC((yyval.c)),op);
+                  liberarReg(op.res);
+
+
+                }
+#line 1648 "lexico.tab.c"
+    break;
+
+  case 27: /* expression: expression PLUSOP expression  */
+#line 489 "lexico.y"
+                                             {
+                    (yyval.c) = (yyvsp[-2].c);
+                    concatenaLC((yyval.c),(yyvsp[0].c));
+                    Operacion oper; 
+                    oper.op = “add”;
+                    oper.res = recuperaResLC((yyvsp[-2].c));
+                    oper.arg1 = recuperaResLC((yyvsp[-2].c));
+                    oper.arg2 = recuperaResLC((yyvsp[0].c));
+                    insertaLC((yyval.c),finalLC((yyval.c)),oper);
+                    liberaLC((yyvsp[0].c));
+                    liberarReg(oper.arg2); 
+                }
+#line 1665 "lexico.tab.c"
+    break;
+
+  case 28: /* expression: expression MINUSOP expression  */
+#line 501 "lexico.y"
+                                              {
+                    (yyval.c) = (yyvsp[-2].c);
+                    concatenaLC((yyval.c),(yyvsp[0].c));
+                    Operacion oper; 
+                    oper.op = “sub”;
+                    oper.res = recuperaResLC((yyvsp[-2].c));
+                    oper.arg1 = recuperaResLC((yyvsp[-2].c));
+                    oper.arg2 = recuperaResLC((yyvsp[0].c));
+                    insertaLC((yyval.c),finalLC((yyval.c)),oper);
+                    liberaLC((yyvsp[0].c));
+                    liberarReg(oper.arg2); 
+                }
+#line 1682 "lexico.tab.c"
+    break;
+
+  case 29: /* expression: expression POR expression  */
+#line 513 "lexico.y"
+                                          {
+                    (yyval.c) = (yyvsp[-2].c);
+                    concatenaLC((yyval.c),(yyvsp[0].c));
+                    Operacion oper; 
+                    oper.op = “mul”;
+                    oper.res = recuperaResLC((yyvsp[-2].c));
+                    oper.arg1 = recuperaResLC((yyvsp[-2].c));
+                    oper.arg2 = recuperaResLC((yyvsp[0].c));
+                    insertaLC((yyval.c),finalLC((yyval.c)),oper);
+                    liberaLC((yyvsp[0].c));
+                    liberarReg(oper.arg2); 
+            }
+#line 1699 "lexico.tab.c"
+    break;
+
+  case 30: /* expression: expression DIV expression  */
+#line 525 "lexico.y"
+                                          {   
+                    (yyval.c) = (yyvsp[-2].c);
+                    concatenaLC((yyval.c),(yyvsp[0].c));
+                    Operacion oper; 
+                    oper.op = “div”;
+                    oper.res = recuperaResLC((yyvsp[-2].c));
+                    oper.arg1 = recuperaResLC((yyvsp[-2].c));
+                    oper.arg2 = recuperaResLC((yyvsp[0].c));
+                    insertaLC((yyval.c),finalLC((yyval.c)),oper);
+                    liberaLC((yyvsp[0].c));
+                    liberarReg(oper.arg2); 
+                    }
+#line 1716 "lexico.tab.c"
+    break;
+
+  case 31: /* expression: LPAREN expression INTERR expression DOSPUNT expression RPAREN  */
+#line 545 "lexico.y"
+                                                                     {
+            (yyval.c) = creaLC();
+            concatenaLC((yyval.c), (yyvsp[-5].c));  // Añadimos código de la condición
+
+            char* etiq1 = nuevaEtiqueta();  // Etiqueta para el caso verdadero
+            char* etiq2 = nuevaEtiqueta();  // Etiqueta para el final
+
+            Operacion op;
+            // Salto condicional: si es falso, salta a etiq1
+            op.op = "beqz";
+            op.arg1 = recuperaResLC((yyvsp[-5].c));
+            op.arg2 = etiq1;
+            op.res = NULL;
+            insertaLC((yyval.c), finalLC((yyval.c)), op);
+
+            // Código para el caso verdadero
+            concatenaLC((yyval.c), (yyvsp[-3].c));
+            op.op = "b";
+            op.arg1 = etiq2;
+            op.arg2 = NULL;
+            insertaLC((yyval.c), finalLC((yyval.c)), op);
+
+            // Etiqueta para el caso falso
+            op.op = "etiq";
+            op.arg1 = etiq1;
+            op.arg2 = NULL;
+            insertaLC((yyval.c), finalLC((yyval.c)), op);
+
+            // Código para el caso falso
+            concatenaLC((yyval.c), (yyvsp[-1].c));
+
+            // Etiqueta final
+            op.op = "etiq";
+            op.arg1 = etiq2;
+            op.arg2 = NULL;
+            insertaLC((yyval.c), finalLC((yyval.c)), op);
+
+            // Liberamos las listas y registros que ya no necesitamos
+            liberaLC((yyvsp[-5].c));
+            liberaLC((yyvsp[-3].c));
+            liberaLC((yyvsp[-1].c));
+            liberarReg(recuperaResLC((yyvsp[-5].c)));
+
+            // El resultado final estará en el registro de $4 o $6
+            guardaResLC((yyval.c), recuperaResLC((yyvsp[-3].c)));  // O podría ser $6, depende de qué camino se tome
+        
+
+        
+    }
+#line 1770 "lexico.tab.c"
+    break;
+
+  case 32: /* expression: MINUSOP expression  */
+#line 600 "lexico.y"
+                                        {
+
+            (yyval.c)=(yyvsp[0].c);
+            Operacion op;
+            op.op="neg";
+            op.res=recuperaResLC((yyvsp[0].c));
+            op.arg1=recuperaResLC((yyvsp[0].c));
+            op.arg2=NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op);
+        }
+#line 1785 "lexico.tab.c"
+    break;
+
+  case 33: /* expression: LPAREN expression RPAREN  */
+#line 614 "lexico.y"
+                                 {
+        { (yyval.c) = (yyvsp[-1].c); }
+    }
+#line 1793 "lexico.tab.c"
     break;
 
   case 34: /* expression: ID  */
-#line 184 "lexico.y"
+#line 621 "lexico.y"
             {if (!(perteneceTablaS((yyvsp[0].c)))) {
                 printf("Error semantico en linea %d: %s no declarada\n", yylineno, (yyvsp[0].c));
                 semantic_errors_count++;
             }  
-                free((yyvsp[0].c));
+            free((yyvsp[0].c));
+            (yyval.c)=creaLC();
+            Operacion op;
+            op.op="lw";
+            op.res = obtenerReg();
+            op.arg1=concatena("_",(yyvsp[0].c));
+            op.arg2=NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op);
+            guardaResLC((yyval.c),op.res);
             }
-#line 1333 "lexico.tab.c"
+#line 1812 "lexico.tab.c"
     break;
 
   case 35: /* expression: NUM  */
-#line 190 "lexico.y"
-            {free((yyvsp[0].c));}
-#line 1339 "lexico.tab.c"
+#line 639 "lexico.y"
+            {free((yyvsp[0].c));
+
+            (yyval.c)=creaLC();
+            Operacion op;
+            op.op="li";
+            op.res = obtenerReg();
+            op.arg1=(yyvsp[0].c);
+            op.arg2=NULL;
+            insertaLC((yyval.c),finalLC((yyval.c)),op); //donde la inserto,en que posicion, el que guardo
+            guardaResLC((yyval.c),op.res);
+
+    
+        }
+#line 1830 "lexico.tab.c"
     break;
 
 
-#line 1343 "lexico.tab.c"
+#line 1834 "lexico.tab.c"
 
       default: break;
     }
@@ -1532,7 +2023,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 193 "lexico.y"
+#line 678 "lexico.y"
 
 
 void yyerror() {
@@ -1612,11 +2103,12 @@ void imprimirTablaS() {
     printf("Total de simbolos: %d\n", contador);
 }
 
-// ensamblador 
 
-// siempre que hacermos una cancatena liberamos la lista 
 
-// crea un nuevo regisro 
-
-// liberar el registor para que pueda ser utlizada 
+char* nuevaEtiqueta(){
+    char* etiq;
+    asprintf(&etiq,"etiq%d",contador_etiq);
+    contador_etiq++;
+    return etiq;
+}
 

@@ -87,9 +87,9 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 32 "lexico.y"
+#line 31 "lexico.y"
  
-char *c;
+ListaC c; //char *c; asume que listaC es el tipo de tus estrucutra de codigo
 
 #line 95 "lexico.tab.h"
 

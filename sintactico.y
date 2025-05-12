@@ -77,7 +77,7 @@
 %token NOTIG "!="
 
 /* Tipo de dato de los no terminales */
-%type <codigo> expression statement statement_list declarations identifier_list identifier print_item print_list read_list else_part expr_rel
+%type <c> program declarations tipo var_list const_list statement_list statement expression print_list print_item read_list
 
 %define parse.error verbose
 %define parse.trace

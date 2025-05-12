@@ -28,9 +28,8 @@ void imprimirTablaS();
 
 %expect 1
 
-
 %union{ 
-char *c;
+ListaC c; //char *c; asume que listaC es el tipo de tus estrucutra de codigo
 }
 
 
@@ -39,6 +38,7 @@ char *c;
 %token <c> ID
 %token <c> STRING
 
+%type <c> program declarations tipo var_list const_list statement_list statement expression print_list print_item read_list
 
 %left PLUSOP MINUSOP
 %left DIV POR
@@ -119,10 +119,6 @@ var_list :   ID  { if (!(perteneceTablaS($1))) añadeEntrada($1,VARIABLE);
 
                         }
     ;
-                       
-
-
-
 
 
 
@@ -132,27 +128,23 @@ const_list : ID ASSIGNOP expression {
                 else {
                     printf("Error  semantico en linea %d: %s ya declarada\n", yylineno, $1);
                     semantic_errors_count++;
-                }  
+                } 
                     free($1);
-
-
-
-
-                    if (entrada_id) {
-                        $$ = ???????(entrada_id, $1);
-                    } else {
-                        $$ = NULL;
-                    }
-                        liberaLC($3);
-            }
-
-
 
                     /* 1. Verificación semántica de $1
                        2. $$ = código de asignación
-                       3. Liberar registro de $3 */
-                    liberaLC($3); 
+                       3. Liberar registro de $3  */
 
+                $$ = $3;  // Código de la expresión
+                Operacion op;
+                op.op = "sw";
+                op.res = recuperaResLC($3);  // Registro con el resultado
+                op.arg1 = concatena("_", $1);  // Dirección de memoria de la constante
+                op.arg2 = NULL;
+                insertaLC($$, finalLC($$), op);  // Añade operación SW al código
+                liberarReg(op.res);  // Liberar registro usado
+
+    }
             
     | const_list COMMA ID ASSIGNOP expression {
                 if (!(perteneceTablaS($3))) 
@@ -163,29 +155,27 @@ const_list : ID ASSIGNOP expression {
                 }
                 free($3);
 
-
-
-
-                    if (entrada_id) {
-                        $$ = ???????(entrada_id, $3);
-                    } else {
-                        $$ = NULL;
-                    }
-                    liberaLC($5);
-
-
-
                 /* 1. Verificación semántica de $3
                    2. $$ = código de asignación
                    3. Liberar registro de $5 */
 
+                // Generar código para la expresión
+                ListaC expr_code = $5;
+                Operacion op;
+                op.op = "sw";
+                op.res = recuperaResLC(expr_code);
+                op.arg1 = concatena("_", $3);
+                op.arg2 = NULL;
+                insertaLC(expr_code, finalLC(expr_code), op);  // Añade SW al código de la expresión
+                liberarReg(op.res);
 
-            }
+                // Concatenar al código existente
+                concatenaLC($1, expr_code);
+                $$ = $1;  // El código combinado
+                liberaLC(expr_code);  // Liberar la lista temporal
+             
+        }
     ;
-
-
-
-
 
 
 
@@ -196,8 +186,6 @@ statement_list : statement_list statement {
 }
     |   /* LAMBDA */  { $$=creaLC(); } // cuando no hay ninguna declaracion entonces inicializa una nueva linea de codigo
     ;
-
-
 
 
 
@@ -223,8 +211,6 @@ statement : ID ASSIGNOP expression SEMICOLON {
     }
 
 
-
-
     |   LCORCH statement_list RCORCH {$$ = $2;} 
 
 
@@ -233,39 +219,40 @@ statement : ID ASSIGNOP expression SEMICOLON {
             $$ = $3;                                  
             Operacion op;                             
             char* etiqEndIf = nuevaEtiqueta();        // creamos la etiqueta if    
-            char* etiqElse = nuevaEtiqueta();         // creamos la etiqueta else 
+            char* etiqElse = nuevaEtiqueta();         // creamos la etiqueta else
+
             op.op = "beqz";                           // beqz brach if equal to zero
             op.res = recuperaResLC($3);               // registro con el resutlado de la condicion 
             op.arg1 = etiqEndIf;                      // saltamos al Endif
             op.arg2 = NULL;                           // el segundo registro no lo usamos 
-            insertaLC($$,finalLC($$),op);             // insertar instrucion de salto 
+            insertaLC($$,finalLC($$),op);             // beqz $t, etiqEndIf
 
 // BLOQUE IF            
-            concatenaLC($$,$5);                       // añadimos el codigo del bloque
+            concatenaLC($$,$5);                       // añadimos el codigo del bloque if
             op.op = "b";                              // salto condicional
             op.res = etiqElse;                        // saltamos a la etiqueta else 
             op.arg1 = NULL;                           // null oper1
             op.arg2 = NULL;                           // null oper2
-            insertaLC($$,finalLC($$),op);             // añadimos el codigo del bloque
+            insertaLC($$,finalLC($$),op);             // b etiqElse
 
             op.op = concatena(etiqEndIf,":");         // creamos la etiqueta endif con la q concatenamos la etiqueta endif con : 
             op.res = NULL;                            // null resultado
             op.arg1 = NULL;                           // null oper1
             op.arg2 = NULL;                           // null oper2
-            insertaLC($$,finalLC($$),op);             // Inserta la etiqueta al final de la lista de código
+            insertaLC($$,finalLC($$),op);             // etiqEndIf :
             
 // BLOQUE ELSE            
-            concatenaLC($$,$7);                       // concatena con el statement de 
+            concatenaLC($$,$7);                       // añadimos el codigo del bloque else
             op.op = concatena(etiqElse,":");          // crea etiqueta para el else concatenando con : 
             op.res = NULL;                            // null resultado
             op.arg1 = NULL;                           // null oper1      
             op.arg2 = NULL;                           // null oper2
-            insertaLC($$,finalLC($$),op);             // inserta la etiqueta final de  
+            insertaLC($$,finalLC($$),op);             // etiquetaElse :
 
 // LIBERAMOS     
-            liberarReg(recuperaResLC($3));            // liberamos la expresion 
-            liberaLC($5);                             // liberamos statement del $5 
-            liberaLC($7);                             // libera lista codigo el else
+            liberarReg(recuperaResLC($3));            // liberamos la expresion
+            liberaLC($5);                             // liberamos   $5
+            liberaLC($7);                             // liberamos   $7
  }
 
 
@@ -279,46 +266,62 @@ statement : ID ASSIGNOP expression SEMICOLON {
             op.res = recuperaResLC($3);               // registro con el resutlado de la condicion 
             op.arg1 = etiqEndIf;                      // saltamos al Endif
             op.arg2 = NULL;                           // el segundo registro no lo usamos 
-            insertaLC($$,finalLC($$),op);             // insertar instrucion de salto
+            insertaLC($$,finalLC($$),op);             // beqz $t2, etiqEndIf :
 
         //  AÑADIMOS EL CODIGO DEL BLOQUE IF
-            concatenaLC($$,$5);                       
+            concatenaLC($$,$5);                       // se genera el codigo del bloque if  
 
             op.op = concatena(etiqEndIf,":");         // añadimos la etiqueta endif con :  
             op.res = NULL;                            
             op.arg1 = NULL;                           
             op.arg2 = NULL;                           
-            insertaLC($$,finalLC($$),op); 
+            insertaLC($$,finalLC($$),op);             // etiqEndif:
 
             liberarReg(recuperaResLC($3));            // Liberamos registro de la condición
             liberaLC($5);                             // Liberamos código del bloque if
-
-
-// BLOQUE IF                         
-            op.op = "b";                              // 
-            op.res = etiqElse;                        // saltamos a la etiqueta else 
-            op.res = NULL;                            // null resultado
-            op.arg1 = NULL;                           // null oper1
-            op.arg2 = NULL;                           // null oper2
-            insertaLC($$,finalLC($$),op);             // añadimos el codigo del bloque
-
-            op.op = concatena(etiqEndIf,":");         // creamos la etiqueta endif con la q concatenamos la etiqueta endif con : 
-            op.res = NULL;                            // null resultado
-            op.arg1 = NULL;                           // null oper1
-            op.arg2 = NULL;                           // null oper2
-            insertaLC($$,finalLC($$),op);             // Inserta la etiqueta al final de la lista de código
     }
 
-      
-
-
-
+    
     |   WHILE LPAREN expression RPAREN statement {
+            $$ = creaLC();                            // inicializamos lista codigo vacia
+            Operacion op;                             // inicializamos op 
+            char* etiqWhile = nuevaEtiqueta();        // creamos la etiqueta while
+            char* etiqEndWhile = nuevaEtiqueta();     // creamos la etiqueta end while
+
+        // ETIQUETA INICIO WHILE 
+            op.op = concatena(etiqWhile,":");         //  
+            op.res = NULL;                            // null resultado
+            op.arg1 = NULL;                           // null oper1
+            op.arg2 = NULL;                           // null oper2
+            insertaLC($$,finalLC($$),op);             // etiqWhile :
+            
+            concatenaLC($$,$3);                       // generamos el codigo de la condicion
+            
+            op.op = "beqz";                           // hacemos un salto condicional
+            op.res = recuperaResLC($3);             
+            op.arg1 = etiqEndWhile;
+            op.arg2 = NULL;
+            insertaLC($$,finalLC($$),op);             // beqz $X, etiqWhile
+
+            concatenaLC($$,$5);                      // generamos el cuerpo del while
+            
+            op.op = "b";                             // salto al inicio
+            op.res = etiqWhile;                     
+            op.arg1 = NULL; 
+            op.arg2 = NULL;
+            insertaLC($$,finalLC($$),op);             // b etiqWhile
 
 
+        // ETIEQUETA FINAL WHILE
+            op.op = concatena(etiqEndWhile,":");
+            op.res = NULL;
+            op.arg1 = NULL;
+            op.arg2 = NULL;
+            insertaLC($$,finalLC($$),op);           // etiqEndWhile :
 
-
-
+            liberarReg(recuperaResLC($3));           // liberamos resultado de $3
+            liberaLC($3);                            // liberamos $3
+            liberaLC($5);                            // liberamos $5
     }
 
 
@@ -330,10 +333,7 @@ statement : ID ASSIGNOP expression SEMICOLON {
 
 
 
-
-
-print_list : print_item 
-            {  $$=$1;  }
+print_list : print_item  {  $$=$1;  }
 
     |print_list COMMA print_item 
             {
